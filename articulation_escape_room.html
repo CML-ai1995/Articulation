@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Mystery of the Missing R-Artifacts - SLP Escape Room</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Cinzel', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            detective: {
+              900: '#0F172A',
+              800: '#1E293B',
+              700: '#334155',
+              gold: '#D97706',
+              goldHover: '#B45309',
+              accent: '#38BDF8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar & Animations */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    .glow-gold {
+      box-shadow: 0 0 15px rgba(217, 119, 6, 0.4);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.95; transform: scale(1.02); }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 3s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-detective-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-detective-gold selection:text-white">
+
+  <!-- HEADER / SLP TOOLBAR -->
+  <header class="bg-detective-800 border-b border-slate-700 shadow-md p-4 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-detective-gold p-2.5 rounded-lg text-slate-900 shadow">
+          <i class="fa-solid fa-magnifying-glass text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-serif font-bold text-lg md:text-xl text-amber-400 tracking-wide">The Missing /R/ Artifacts</h1>
+          <p class="text-xs text-slate-400">SLP Articulation Escape Room</p>
+        </div>
+      </div>
+
+      <!-- Live SLP Rep Counter Display -->
+      <div class="flex items-center space-x-2 md:space-x-4 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-700">
+        <div class="text-center px-2">
+          <span class="block text-xs text-slate-400 font-medium">Word Reps</span>
+          <span id="stat-words" class="text-lg font-bold text-amber-400">0</span>
+        </div>
+        <div class="h-8 w-px bg-slate-700"></div>
+        <div class="text-center px-2">
+          <span class="block text-xs text-slate-400 font-medium">Sentence Reps</span>
+          <span id="stat-sentences" class="text-lg font-bold text-cyan-400">0</span>
+        </div>
+        <div class="h-8 w-px bg-slate-700"></div>
+        <div class="text-center px-2">
+          <span class="block text-xs text-slate-400 font-medium">Paragraph Reps</span>
+          <span id="stat-paragraphs" class="text-lg font-bold text-emerald-400">0</span>
+        </div>
+      </div>
+
+      <!-- Placement Visual Helper Modal Trigger Button -->
+      <button onclick="toggleModal('mouth-cue-modal', true)" class="flex items-center space-x-2 bg-slate-700 hover:bg-slate-600 text-amber-300 font-semibold px-3 py-2 rounded-lg text-sm transition border border-amber-500/30">
+        <i class="fa-solid fa-comments"></i>
+        <span>/R/ Visual Cue Helper</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto w-full p-4 md:p-6 flex-grow flex flex-col justify-center">
+
+    <!-- GAME OVERVIEW / WELCOME SCREEN -->
+    <div id="screen-welcome" class="bg-detective-800 border border-slate-700 rounded-2xl p-6 md:p-10 shadow-2xl text-center space-y-6">
+      <div class="inline-block bg-amber-500/10 p-4 rounded-full border border-amber-500/30 mb-2">
+        <i class="fa-solid fa-vault text-5xl text-amber-400"></i>
+      </div>
+      <h2 class="font-serif text-3xl md:text-4xl font-extrabold text-amber-400">Case File #104: The Missing R-Artifacts</h2>
+      <p class="text-slate-300 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+        Welcome Detective! Rare museum artifacts containing the power of clear speech have been stolen and locked inside the Secret Vault. To unlock each chamber key, you must solve speech challenges across <strong class="text-amber-300">Words</strong>, <strong class="text-cyan-300">Sentences</strong>, and <strong class="text-emerald-300">Stories</strong> while accurately practicing your <strong class="text-amber-400">/R/ sounds</strong>!
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-3xl mx-auto my-6">
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+          <div class="text-amber-400 font-bold mb-1"><i class="fa-solid fa-key mr-2"></i>Chamber 1: Word Level</div>
+          <p class="text-xs text-slate-400">Decipher code words (Initial, Vocalic /R/, Blends) & perform spoken reps to find Key 1.</p>
+        </div>
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+          <div class="text-cyan-400 font-bold mb-1"><i class="fa-solid fa-lock mr-2"></i>Chamber 2: Sentence Level</div>
+          <p class="text-xs text-slate-400">Uncover hidden target sentences and verify sound accuracy to decode the Vault Pin.</p>
+        </div>
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+          <div class="text-emerald-400 font-bold mb-1"><i class="fa-solid fa-door-open mr-2"></i>Chamber 3: Story Level</div>
+          <p class="text-xs text-slate-400">Read the Detective Log, solve the final cipher, and recover the lost Artifacts!</p>
+        </div>
+      </div>
+
+      <button onclick="startGame()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-extrabold text-lg px-8 py-3.5 rounded-xl shadow-lg transition transform hover:-translate-y-0.5">
+        <i class="fa-solid fa-play mr-2"></i> Begin Investigation
+      </button>
+    </div>
+
+    <!-- LEVEL 1: WORD LEVEL -->
+    <div id="screen-level1" class="hidden space-y-6">
+      <div class="flex justify-between items-center bg-slate-800 p-4 rounded-xl border border-slate-700">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Chamber 1 of 3</span>
+          <h2 class="font-serif text-2xl font-bold text-white">The Word Decoding Chamber</h2>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-slate-400">Progress:</span>
+          <span id="l1-progress-badge" class="bg-amber-500/20 text-amber-300 font-bold px-3 py-1 rounded-lg border border-amber-500/40 text-sm">0/4 Words Decoded</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Word Card Area -->
+        <div class="md:col-span-2 bg-detective-800 border border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-4">
+              <span id="word-category-tag" class="text-xs font-semibold bg-slate-700 text-slate-300 px-3 py-1 rounded-full uppercase">Initial /R/</span>
+              <span id="word-counter-display" class="text-xs font-medium text-slate-400">Card 1 of 4</span>
+            </div>
+
+            <!-- Puzzle Word Challenge -->
+            <div class="text-center py-6 bg-slate-900/80 rounded-2xl border border-slate-700/80 my-2">
+              <div class="text-4xl md:text-5xl font-black text-amber-400 tracking-wider mb-3 font-mono" id="scrambled-word">
+                R - O - C - K - E - T
+              </div>
+              <p class="text-slate-400 text-sm" id="word-prompt-hint">Clue: Spaced-bound vehicle carrying satellite gear.</p>
+            </div>
+
+            <!-- Speech Rep Practice Controls -->
+            <div class="bg-slate-900/40 border border-slate-700/60 rounded-xl p-4 mt-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-slate-300"><i class="fa-solid fa-bullhorn text-amber-400 mr-2"></i>Articulation Reps Counter:</span>
+                <span id="current-word-reps" class="text-amber-400 font-bold text-lg">0 Reps</span>
+              </div>
+              <p class="text-xs text-slate-400">Say the target word clearly with your best /r/ mouth shape, then record your practice rep:</p>
+              
+              <!-- Rep Rating Buttons -->
+              <div class="grid grid-cols-3 gap-2 pt-1">
+                <button onclick="recordRep('word', 'Nailed It')" class="bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-300 font-medium py-2 rounded-lg text-xs md:text-sm transition flex items-center justify-center space-x-1">
+                  <i class="fa-solid fa-circle-check"></i>
+                  <span>Nailed It!</span>
+                </button>
+                <button onclick="recordRep('word', 'Almost')" class="bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/50 text-amber-300 font-medium py-2 rounded-lg text-xs md:text-sm transition flex items-center justify-center space-x-1">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  <span>Almost</span>
+                </button>
+                <button onclick="recordRep('word', 'Try Again')" class="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-300 font-medium py-2 rounded-lg text-xs md:text-sm transition flex items-center justify-center space-x-1">
+                  <i class="fa-solid fa-rotate-right"></i>
+                  <span>Try Again</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Answer Input Area -->
+          <div class="mt-6 pt-4 border-t border-slate-700/80">
+            <label class="block text-xs text-slate-400 mb-2">Unscramble & Enter Code Word to verify artifact clue:</label>
+            <div class="flex space-x-2">
+              <input type="text" id="word-answer-input" placeholder="Type answer..." class="bg-slate-900 border border-slate-600 text-white text-base rounded-xl px-4 py-2.5 flex-grow focus:outline-none focus:border-amber-400 uppercase font-mono tracking-wider">
+              <button onclick="verifyWordAnswer()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition">
+                Verify
+              </button>
+            </div>
+            <p id="word-feedback-msg" class="text-xs font-semibold mt-2 h-4"></p>
+          </div>
+        </div>
+
+        <!-- Clue / Inventory Sidebar -->
+        <div class="bg-detective-800 border border-slate-700 rounded-2xl p-5 shadow-xl flex flex-col justify-between space-y-4">
+          <div>
+            <h3 class="font-serif font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center">
+              <i class="fa-solid fa-puzzle-piece text-amber-400 mr-2"></i> Uncovered Key Digits
+            </h3>
+            <div class="space-y-3 mt-4" id="l1-clue-list">
+              <div id="clue-slot-0" class="p-3 bg-slate-900/60 rounded-xl border border-slate-700/80 text-xs text-slate-500 flex items-center justify-between">
+                <span>Digit #1: [Locked]</span>
+                <i class="fa-solid fa-lock"></i>
+              </div>
+              <div id="clue-slot-1" class="p-3 bg-slate-900/60 rounded-xl border border-slate-700/80 text-xs text-slate-500 flex items-center justify-between">
+                <span>Digit #2: [Locked]</span>
+                <i class="fa-solid fa-lock"></i>
+              </div>
+              <div id="clue-slot-2" class="p-3 bg-slate-900/60 rounded-xl border border-slate-700/80 text-xs text-slate-500 flex items-center justify-between">
+                <span>Digit #3: [Locked]</span>
+                <i class="fa-solid fa-lock"></i>
+              </div>
+              <div id="clue-slot-3" class="p-3 bg-slate-900/60 rounded-xl border border-slate-700/80 text-xs text-slate-500 flex items-center justify-between">
+                <span>Digit #4: [Locked]</span>
+                <i class="fa-solid fa-lock"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lock keypad trigger -->
+          <button id="l1-unlock-btn" onclick="openChamber1Pad()" disabled class="w-full bg-slate-700 opacity-50 cursor-not-allowed text-slate-300 font-bold py-3 rounded-xl transition flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-key"></i>
+            <span>Unlock Chamber Key 1</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEVEL 2: SENTENCE LEVEL -->
+    <div id="screen-level2" class="hidden space-y-6">
+      <div class="flex justify-between items-center bg-slate-800 p-4 rounded-xl border border-slate-700">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Chamber 2 of 3</span>
+          <h2 class="font-serif text-2xl font-bold text-white">The Sentence Vault Cipher</h2>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-slate-400">Completed:</span>
+          <span id="l2-progress-badge" class="bg-cyan-500/20 text-cyan-300 font-bold px-3 py-1 rounded-lg border border-cyan-500/40 text-sm">0/3 Sentences</span>
+        </div>
+      </div>
+
+      <div class="bg-detective-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800/60 px-3 py-1 rounded-full uppercase">Target Sentence Challenge</span>
+          <span id="sentence-counter-display" class="text-xs text-slate-400">Sentence 1 of 3</span>
+        </div>
+
+        <!-- Target Sentence Card -->
+        <div class="bg-slate-900/90 border border-slate-700 rounded-2xl p-6 text-center space-y-4">
+          <div class="text-lg md:text-xl font-medium text-slate-200 leading-relaxed" id="sentence-text-display">
+            "The <span class="text-amber-400 border-b-2 border-amber-400 px-1 font-bold">______</span> detective searched for the red ruby in the garden."
+          </div>
+          <div class="inline-block bg-slate-800 px-4 py-2 rounded-xl text-xs text-cyan-300 border border-slate-700" id="sentence-options-hint">
+            Missing Word Options: [ SMART / CLEVER / SHARP ]
+          </div>
+        </div>
+
+        <!-- Speech Practice Controls -->
+        <div class="bg-slate-900/50 border border-slate-700/60 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold text-slate-300"><i class="fa-solid fa-microphone text-cyan-400 mr-2"></i>Sentence Articulation Practice:</span>
+            <span id="current-sentence-reps" class="text-cyan-400 font-bold text-lg">0 Reps</span>
+          </div>
+          <p class="text-xs text-slate-400">Read the complete sentence aloud 2-3 times ensuring crisp /r/ sounds in every word. Track your rep:</p>
+          
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="recordRep('sentence', 'Nailed It')" class="bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-300 font-medium py-2 rounded-lg text-xs md:text-sm transition flex items-center justify-center space-x-1">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Clear Speech</span>
+            </button>
+            <button onclick="recordRep('sentence', 'Almost')" class="bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/50 text-amber-300 font-medium py-2 rounded-lg text-xs md:text-sm transition flex items-center justify-center space-x-1">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <span>Almost</span>
+            </button>
+            <button onclick="recordRep('sentence', 'Try Again')" class="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-300 font-medium py-2 rounded-lg text-xs md:text-sm transition flex items-center justify-center space-x-1">
+              <i class="fa-solid fa-rotate-right"></i>
+              <span>Try Again</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Fill-in-blank selection -->
+        <div class="pt-2">
+          <label class="block text-xs text-slate-400 mb-2">Select the correct /r/-heavy word that fits best:</label>
+          <div id="sentence-buttons-container" class="grid grid-cols-3 gap-3">
+            <!-- Buttons dynamically generated -->
+          </div>
+          <p id="sentence-feedback-msg" class="text-xs font-semibold mt-3 h-4 text-center"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEVEL 3: PARAGRAPH / STORY LEVEL -->
+    <div id="screen-level3" class="hidden space-y-6">
+      <div class="flex justify-between items-center bg-slate-800 p-4 rounded-xl border border-slate-700">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Chamber 3 of 3</span>
+          <h2 class="font-serif text-2xl font-bold text-white">The Detective Log Passage</h2>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-slate-400">Final Stage</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Story Reading Box -->
+        <div class="md:col-span-2 bg-detective-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4 flex flex-col justify-between">
+          <div>
+            <h3 class="font-serif text-lg font-bold text-emerald-400 mb-2 border-b border-slate-700 pb-2">
+              <i class="fa-solid fa-book-open mr-2"></i> Case File #104 Detective Report
+            </h3>
+            <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700/80 text-slate-200 text-sm md:text-base leading-relaxed space-y-3 font-serif">
+              <p>
+                <strong class="text-emerald-300">"Officer Arthur</strong> reported a suspicious <strong class="text-emerald-300">runner</strong> near the <strong class="text-emerald-300">riverbank</strong> carrying a heavy leather <strong class="text-emerald-300">armor</strong> chest. Inside the chest was a rare <strong class="text-emerald-300">ruby</strong> sculpture with four carved <strong class="text-emerald-300">rings</strong>. The detective used his <strong class="text-emerald-300">radar</strong> to track the footprints across the <strong class="text-emerald-300">courtyard</strong> to unlock the secret door."
+              </p>
+            </div>
+
+            <!-- Paragraph Rep Practice Counters -->
+            <div class="bg-slate-900/50 border border-slate-700/60 rounded-xl p-4 mt-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-slate-300"><i class="fa-solid fa-book-reader text-emerald-400 mr-2"></i>Paragraph Reading Reps:</span>
+                <span id="current-paragraph-reps" class="text-emerald-400 font-bold text-lg">0 Reps</span>
+              </div>
+              <p class="text-xs text-slate-400">Read through the story passage aloud, focusing on smooth vocalic /r/ and initial /r/ transitions:</p>
+              
+              <div class="grid grid-cols-3 gap-2">
+                <button onclick="recordRep('paragraph', 'Nailed It')" class="bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-300 font-medium py-2 rounded-lg text-xs transition flex items-center justify-center space-x-1">
+                  <i class="fa-solid fa-star"></i>
+                  <span>Mastered Reading</span>
+                </button>
+                <button onclick="recordRep('paragraph', 'Almost')" class="bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/50 text-amber-300 font-medium py-2 rounded-lg text-xs transition flex items-center justify-center space-x-1">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  <span>Almost</span>
+                </button>
+                <button onclick="recordRep('paragraph', 'Try Again')" class="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-300 font-medium py-2 rounded-lg text-xs transition flex items-center justify-center space-x-1">
+                  <i class="fa-solid fa-rotate-right"></i>
+                  <span>Re-read</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paragraph Comprehension & Articulation Questions -->
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 space-y-3">
+            <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider">Final Cipher Verification Question:</h4>
+            <p class="text-xs md:text-sm text-slate-300">How many carved <strong class="text-amber-300">rings</strong> were found on the sculpture inside the leather chest?</p>
+            <div class="flex space-x-2">
+              <input type="number" id="paragraph-answer-input" placeholder="Enter number..." class="bg-slate-800 border border-slate-600 text-white rounded-xl px-4 py-2 text-sm flex-grow focus:outline-none focus:border-emerald-400">
+              <button onclick="verifyParagraphAnswer()" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold px-5 py-2 text-sm rounded-xl transition">
+                Unlock Chamber 3
+              </button>
+            </div>
+            <p id="paragraph-feedback-msg" class="text-xs font-semibold h-4"></p>
+          </div>
+        </div>
+
+        <!-- Final Door Escape Lock Panel -->
+        <div class="bg-detective-800 border border-slate-700 rounded-2xl p-5 shadow-xl flex flex-col justify-between space-y-4">
+          <div>
+            <h3 class="font-serif font-bold text-slate-200 border-b border-slate-700 pb-2 flex items-center">
+              <i class="fa-solid fa-door-closed text-emerald-400 mr-2"></i> Vault Escape Status
+            </h3>
+            <div class="mt-4 space-y-3 text-xs">
+              <div class="p-3 bg-slate-900/80 rounded-xl border border-emerald-500/40 text-emerald-300 flex items-center justify-between">
+                <span>Chamber 1 Key: Found</span>
+                <i class="fa-solid fa-check-circle"></i>
+              </div>
+              <div class="p-3 bg-slate-900/80 rounded-xl border border-emerald-500/40 text-emerald-300 flex items-center justify-between">
+                <span>Chamber 2 Code: Solved</span>
+                <i class="fa-solid fa-check-circle"></i>
+              </div>
+              <div id="p-chamber-status" class="p-3 bg-slate-900/80 rounded-xl border border-slate-700 text-slate-500 flex items-center justify-between">
+                <span>Chamber 3 Key: Locked</span>
+                <i class="fa-solid fa-lock"></i>
+              </div>
+            </div>
+          </div>
+
+          <button id="l3-escape-btn" onclick="triggerFinalEscape()" disabled class="w-full bg-slate-700 opacity-50 cursor-not-allowed text-slate-300 font-bold py-3.5 rounded-xl transition flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-unlock text-lg"></i>
+            <span>OPEN VAULT DOOR</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESCAPE VICTORY & SLP SCORECARD SCREEN -->
+    <div id="screen-victory" class="hidden bg-detective-800 border border-emerald-500/50 rounded-2xl p-6 md:p-10 shadow-2xl text-center space-y-6 animate-pulse-subtle">
+      <div class="inline-block bg-emerald-500/10 p-5 rounded-full border border-emerald-500/40">
+        <i class="fa-solid fa-trophy text-6xl text-amber-400"></i>
+      </div>
+      <h2 class="font-serif text-3xl md:text-4xl font-extrabold text-emerald-400">VAULT UNLOCKED!</h2>
+      <p class="text-slate-300 max-w-xl mx-auto text-sm md:text-base">
+        Congratulations Detective! You have recovered all missing /R/ artifacts and restored clear articulation power to the museum!
+      </p>
+
+      <!-- SLP Scorecard Summary -->
+      <div class="bg-slate-900/90 border border-slate-700 rounded-2xl p-6 max-w-2xl mx-auto text-left space-y-4 shadow-xl">
+        <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+          <h3 class="font-serif text-lg font-bold text-amber-400 flex items-center">
+            <i class="fa-solid fa-clipboard-check mr-2"></i> SLP Therapy Summary Scorecard
+          </h3>
+          <span class="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700" id="summary-date">Today</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+            <div class="text-2xl font-bold text-amber-400" id="final-word-reps">0</div>
+            <div class="text-xs text-slate-400 mt-1">Word Level Reps</div>
+          </div>
+          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+            <div class="text-2xl font-bold text-cyan-400" id="final-sentence-reps">0</div>
+            <div class="text-xs text-slate-400 mt-1">Sentence Reps</div>
+          </div>
+          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+            <div class="text-2xl font-bold text-emerald-400" id="final-paragraph-reps">0</div>
+            <div class="text-xs text-slate-400 mt-1">Paragraph Reps</div>
+          </div>
+        </div>
+
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/80 space-y-2">
+          <div class="text-xs font-semibold text-slate-300">Self-Evaluation Breakdown:</div>
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            <div class="text-emerald-400"><i class="fa-solid fa-check-circle mr-1"></i> Nailed It: <span id="rating-nailed">0</span></div>
+            <div class="text-amber-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Almost: <span id="rating-almost">0</span></div>
+            <div class="text-slate-400"><i class="fa-solid fa-rotate-right mr-1"></i> Practice: <span id="rating-retry">0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-center space-x-4">
+        <button onclick="resetGame()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold px-6 py-3 rounded-xl transition">
+          <i class="fa-solid fa-redo mr-2"></i> Play Again
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL 1: MOUTH PLACEMENT VISUAL CUE MODAL -->
+  <div id="mouth-cue-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-detective-800 border border-amber-500/40 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+        <h3 class="font-serif font-bold text-lg text-amber-400 flex items-center">
+          <i class="fa-solid fa-mouth-open mr-2"></i> /R/ Sound Placement Guide
+        </h3>
+        <button onclick="toggleModal('mouth-cue-modal', false)" class="text-slate-400 hover:text-white text-xl">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs md:text-sm text-slate-300">
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+          <div class="font-bold text-cyan-300 mb-1">1. Bunched /R/ Position</div>
+          <p>Pull the tongue body back into a high "mountain" shape. The sides of the tongue press firmly against the top back molars.</p>
+        </div>
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+          <div class="font-bold text-amber-300 mb-1">2. Retroflex /R/ Position</div>
+          <p>Curl the tip of the tongue up and back towards the roof of the mouth without touching it.</p>
+        </div>
+        <div class="bg-amber-500/10 p-3 rounded-xl border border-amber-500/30 text-amber-200 text-xs">
+          <i class="fa-solid fa-lightbulb mr-1"></i> <strong>Key Reminders:</strong> Keep lips slightly squared, turn on vocal cords (voice on), and pull tongue back tight!
+        </div>
+      </div>
+
+      <button onclick="toggleModal('mouth-cue-modal', false)" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-2.5 rounded-xl transition">
+        Got It! Back to Game
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 2: CHAMBER 1 KEYPAD MODAL -->
+  <div id="keypad-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-detective-800 border border-amber-500/40 max-w-xs w-full rounded-2xl p-6 shadow-2xl space-y-4 text-center">
+      <h3 class="font-serif font-bold text-lg text-amber-400">Chamber 1 Lock Pad</h3>
+      <p class="text-xs text-slate-400">Enter the 4-digit code uncovered from your word puzzles:</p>
+      
+      <div id="keypad-display" class="bg-slate-900 font-mono text-3xl font-bold text-amber-400 tracking-widest py-3 rounded-xl border border-slate-700">
+        ----
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 font-mono text-xl font-bold">
+        <button onclick="keypadInput('1')" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl">1</button>
+        <button onclick="keypadInput('2')" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl">2</button>
+        <button onclick="keypadInput('3')" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl">3</button>
+        <button onclick="keypadInput('4')" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl">4</button>
+        <button onclick="keypadInput('5')" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl">5</button>
+        <button onclick="keypadInput('6')" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl">6</button>
+        <button onclick="keypadInput('7')" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl">7</button>
+        <button onclick="keypadInput('8')" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl">8</button>
+        <button onclick="keypadInput('9')" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl">9</button>
+        <button onclick="keypadClear()" class="bg-red-900/60 text-red-300 hover:bg-red-800 py-3 rounded-xl text-sm font-sans">Clear</button>
+        <button onclick="keypadInput('0')" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl">0</button>
+        <button onclick="keypadSubmit()" class="bg-amber-600 text-slate-950 hover:bg-amber-500 py-3 rounded-xl text-sm font-sans font-bold">Enter</button>
+      </div>
+
+      <button onclick="toggleModal('keypad-modal', false)" class="text-xs text-slate-400 hover:text-white underline pt-2">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-detective-800 border-t border-slate-700/80 p-4 text-center text-xs text-slate-500">
+    Designed for Speech-Language Pathology (SLP) Articulation Practice • The /R/ Artifact Escape Room
+  </footer>
+
+  <script>
+    /* GAME DATA STRUCTURES */
+    const wordList = [
+      { category: "Initial /R/", word: "ROCKET", hint: "Space-bound vehicle carrying satellite gear.", clueDigit: "4" },
+      { category: "Vocalic /AR/", word: "CARPET", hint: "Soft floor covering inside a room.", clueDigit: "7" },
+      { category: "/R/ Blend", word: "RING", hint: "Circular piece of jewelry worn on a finger.", clueDigit: "2" },
+      { category: "Vocalic /ER/", word: "TIGER", hint: "Striped wild big cat.", clueDigit: "9" }
+    ];
+
+    const sentenceList = [
+      { text: "The _____ detective searched for the red ruby in the garden.", target: "CLEVER", options: ["SMART", "CLEVER", "SHARP"] },
+      { text: "Officer Arthur drove his red _____ across the river bridge.", target: "TRUCK", options: ["CAR", "TRUCK", "VAN"] },
+      { text: "The treasure chest was filled with gold _____ and pearls.", target: "RINGS", options: ["RINGS", "COINS", "JEWELS"] }
+    ];
+
+    /* GAME STATE VARIABLE COUNTERS */
+    let state = {
+      wordReps: 0,
+      sentenceReps: 0,
+      paragraphReps: 0,
+      ratings: { nailed: 0, almost: 0, retry: 0 },
+      currentWordIndex: 0,
+      decodedWords: [],
+      currentSentenceIndex: 0,
+      l2CompletedSentences: 0,
+      l3Completed: false,
+      keypadBuffer: ""
+    };
+
+    /* INITIALIZATION & NAVIGATION */
+    function startGame() {
+      showScreen('screen-level1');
+      loadWordChallenge();
+    }
+
+    function showScreen(screenId) {
+      const screens = ['screen-welcome', 'screen-level1', 'screen-level2', 'screen-level3', 'screen-victory'];
+      screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      const activeEl = document.getElementById(screenId);
+      if (activeEl) activeEl.classList.remove('hidden');
+    }
+
+    function toggleModal(modalId, show) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        if (show) modal.classList.remove('hidden');
+        else modal.classList.add('hidden');
+      }
+    }
+
+    /* SLP PRACTICE REPS COUNTER LOGIC */
+    function recordRep(type, rating) {
+      if (type === 'word') state.wordReps++;
+      if (type === 'sentence') state.sentenceReps++;
+      if (type === 'paragraph') state.paragraphReps++;
+
+      if (rating === 'Nailed It') state.ratings.nailed++;
+      if (rating === 'Almost') state.ratings.almost++;
+      if (rating === 'Try Again') state.ratings.retry++;
+
+      updateUIStats();
+    }
+
+    function updateUIStats() {
+      document.getElementById('stat-words').innerText = state.wordReps;
+      document.getElementById('stat-sentences').innerText = state.sentenceReps;
+      document.getElementById('stat-paragraphs').innerText = state.paragraphReps;
+
+      document.getElementById('current-word-reps').innerText = state.wordReps + " Reps";
+      document.getElementById('current-sentence-reps').innerText = state.sentenceReps + " Reps";
+      document.getElementById('current-paragraph-reps').innerText = state.paragraphReps + " Reps";
+    }
+
+    /* LEVEL 1: WORD PUZZLE LOGIC */
+    function loadWordChallenge() {
+      const current = wordList[state.currentWordIndex];
+      document.getElementById('word-category-tag').innerText = current.category;
+      document.getElementById('word-counter-display').innerText = `Card ${state.currentWordIndex + 1} of ${wordList.length}`;
+      
+      // Display scrambled string
+      const scrambled = current.word.split('').sort(() => 0.5 - Math.random()).join(' - ');
+      document.getElementById('scrambled-word').innerText = scrambled;
+      document.getElementById('word-prompt-hint').innerText = "Clue: " + current.hint;
+      document.getElementById('word-answer-input').value = "";
+      document.getElementById('word-feedback-msg').innerText = "";
+    }
+
+    function verifyWordAnswer() {
+      const input = document.getElementById('word-answer-input').value.trim().toUpperCase();
+      const current = wordList[state.currentWordIndex];
+      const feedback = document.getElementById('word-feedback-msg');
+
+      if (input === current.word) {
+        feedback.className = "text-xs font-semibold mt-2 text-emerald-400";
+        feedback.innerText = `Correct! Uncovered Clue Digit: ${current.clueDigit}`;
+
+        // Unlock clue slot in UI
+        const slot = document.getElementById(`clue-slot-${state.currentWordIndex}`);
+        if (slot) {
+          slot.className = "p-3 bg-amber-500/20 rounded-xl border border-amber-500/50 text-xs text-amber-300 font-bold flex items-center justify-between";
+          slot.innerHTML = `<span>Digit #${state.currentWordIndex + 1}: ${current.clueDigit}</span><i class="fa-solid fa-check"></i>`;
+        }
+
+        if (!state.decodedWords.includes(state.currentWordIndex)) {
+          state.decodedWords.push(state.currentWordIndex);
+        }
+
+        document.getElementById('l1-progress-badge').innerText = `${state.decodedWords.length}/4 Words Decoded`;
+
+        state.currentWordIndex++;
+        if (state.currentWordIndex < wordList.length) {
+          setTimeout(loadWordChallenge, 1500);
+        } else {
+          // Enable keypad unlock button
+          const btn = document.getElementById('l1-unlock-btn');
+          btn.disabled = false;
+          btn.className = "w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg flex items-center justify-center space-x-2 animate-bounce";
+        }
+      } else {
+        feedback.className = "text-xs font-semibold mt-2 text-red-400";
+        feedback.innerText = "Incorrect deciphering. Try again!";
+      }
+    }
+
+    function openChamber1Pad() {
+      toggleModal('keypad-modal', true);
+    }
+
+    function keypadInput(num) {
+      if (state.keypadBuffer.length < 4) {
+        state.keypadBuffer += num;
+        document.getElementById('keypad-display').innerText = state.keypadBuffer.padEnd(4, '-');
+      }
+    }
+
+    function keypadClear() {
+      state.keypadBuffer = "";
+      document.getElementById('keypad-display').innerText = "----";
+    }
+
+    function keypadSubmit() {
+      const correctCode = wordList.map(w => w.clueDigit).join('');
+      if (state.keypadBuffer === correctCode) {
+        toggleModal('keypad-modal', false);
+        showScreen('screen-level2');
+        loadSentenceChallenge();
+      } else {
+        alert("Incorrect Code! Review your word clue digits.");
+        keypadClear();
+      }
+    }
+
+    /* LEVEL 2: SENTENCE LOGIC */
+    function loadSentenceChallenge() {
+      const current = sentenceList[state.currentSentenceIndex];
+      document.getElementById('sentence-counter-display').innerText = `Sentence ${state.currentSentenceIndex + 1} of ${sentenceList.length}`;
+      document.getElementById('sentence-text-display').innerHTML = current.text.replace('_____', `<span class="text-amber-400 border-b-2 border-amber-400 px-1 font-bold">______</span>`);
+      document.getElementById('sentence-options-hint').innerText = "Options: " + current.options.join(" / ");
+      document.getElementById('sentence-feedback-msg').innerText = "";
+
+      const btnContainer = document.getElementById('sentence-buttons-container');
+      btnContainer.innerHTML = "";
+
+      current.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = "bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-300 font-bold py-2.5 rounded-xl text-sm transition";
+        btn.innerText = opt;
+        btn.onclick = () => selectSentenceOption(opt);
+        btnContainer.appendChild(btn);
+      });
+    }
+
+    function selectSentenceOption(option) {
+      const current = sentenceList[state.currentSentenceIndex];
+      const feedback = document.getElementById('sentence-feedback-msg');
+
+      if (option === current.target) {
+        feedback.className = "text-xs font-semibold mt-3 text-emerald-400 text-center";
+        feedback.innerText = "Correct sentence target word!";
+        state.l2CompletedSentences++;
+        document.getElementById('l2-progress-badge').innerText = `${state.l2CompletedSentences}/3 Sentences`;
+
+        state.currentSentenceIndex++;
+        if (state.currentSentenceIndex < sentenceList.length) {
+          setTimeout(loadSentenceChallenge, 1200);
+        } else {
+          setTimeout(() => {
+            showScreen('screen-level3');
+          }, 1200);
+        }
+      } else {
+        feedback.className = "text-xs font-semibold mt-3 text-red-400 text-center";
+        feedback.innerText = "Try another target word for optimal sentence articulation!";
+      }
+    }
+
+    /* LEVEL 3: PARAGRAPH LOGIC */
+    function verifyParagraphAnswer() {
+      const val = document.getElementById('paragraph-answer-input').value.trim();
+      const feedback = document.getElementById('paragraph-feedback-msg');
+
+      if (val === "4" || val.toLowerCase() === "four") {
+        feedback.className = "text-xs font-semibold text-emerald-400";
+        feedback.innerText = "Correct! The final cipher code is unlocked.";
+
+        const statusSlot = document.getElementById('p-chamber-status');
+        statusSlot.className = "p-3 bg-slate-900/80 rounded-xl border border-emerald-500/40 text-emerald-300 flex items-center justify-between";
+        statusSlot.innerHTML = `<span>Chamber 3 Key: Unlocked</span><i class="fa-solid fa-check-circle"></i>`;
+
+        const escapeBtn = document.getElementById('l3-escape-btn');
+        escapeBtn.disabled = false;
+        escapeBtn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold py-3.5 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg animate-bounce";
+      } else {
+        feedback.className = "text-xs font-semibold text-red-400";
+        feedback.innerText = "Incorrect answer. Check the paragraph text for carved rings.";
+      }
+    }
+
+    function triggerFinalEscape() {
+      // Set summary scorecard data
+      document.getElementById('final-word-reps').innerText = state.wordReps;
+      document.getElementById('final-sentence-reps').innerText = state.sentenceReps;
+      document.getElementById('final-paragraph-reps').innerText = state.paragraphReps;
+
+      document.getElementById('rating-nailed').innerText = state.ratings.nailed;
+      document.getElementById('rating-almost').innerText = state.ratings.almost;
+      document.getElementById('rating-retry').innerText = state.ratings.retry;
+
+      const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('summary-date').innerText = dateStr;
+
+      showScreen('screen-victory');
+    }
+
+    function resetGame() {
+      state = {
+        wordReps: 0,
+        sentenceReps: 0,
+        paragraphReps: 0,
+        ratings: { nailed: 0, almost: 0, retry: 0 },
+        currentWordIndex: 0,
+        decodedWords: [],
+        currentSentenceIndex: 0,
+        l2CompletedSentences: 0,
+        l3Completed: false,
+        keypadBuffer: ""
+      };
+      updateUIStats();
+      showScreen('screen-welcome');
+    }
+  </script>
+</body>
+</html>
